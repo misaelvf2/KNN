@@ -108,7 +108,7 @@ class KNN:
         weighted_sum, normalizer = 0, 0
         for distance, value in zip(nearest_distances, nearest_values):
             weighted_sum += np.exp(-(1/2*self.bandwidth)*distance**2) * value
-            normalizer += np.exp(-(1/2*self.bandwidth)*distance)
+            normalizer += np.exp(-(1/2*self.bandwidth)*distance**2)
         prediction = weighted_sum / normalizer
         error = np.abs(query_point.iloc[-1] - prediction)
         correct = "Correct" if error < self.error else "Incorrect"

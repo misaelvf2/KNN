@@ -21,7 +21,7 @@ for fold, (train, test) in enumerate(skf.split(X=np.zeros(len(df)), y=df.iloc[:,
 # Train; run 5 experiments in total
 trained_models = []
 for training_set in training_sets:
-    my_knn = KNN(num_neighbors=3, bandwidth=1, error=5.0, data=training_set, attribute_names=list(df.columns))
+    my_knn = KNN(num_neighbors=3, bandwidth=1, error=2.0, data=training_set, attribute_names=list(df.columns))
     my_knn.train(regression=True)
     my_knn.report_training_stats()
     trained_models.append(my_knn)
