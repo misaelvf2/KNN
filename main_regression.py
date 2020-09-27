@@ -21,17 +21,25 @@ for fold, (train, test) in enumerate(skf.split(X=np.zeros(len(df)), y=df.iloc[:,
 # Train; run 5 experiments in total
 trained_models = []
 for training_set in training_sets:
-    my_knn = KNN(num_neighbors=3, bandwidth=1, error=5.0, data=training_set, attribute_names=list(df.columns))
-    my_knn.train(regression=True)
+    my_knn = KNN(num_neighbors=1, bandwidth=3.0, error=2.5, data=training_set, attribute_names=list(df.columns))
+    # my_knn.train(regression=True, edited=True)
+    my_knn.condense_data(regression=True)
     my_knn.report_training_stats()
     trained_models.append(my_knn)
 
-# Tune parameters for 5 trained models
+# Tune k for 5 trained models
 for model in trained_models:
     parameters = [_ for _ in range(1, 11)]
-    optimal_parameter = model.tune(tuning_set, parameters=parameters, regression=True)
-    model.report_tuning_stats()
-    print("Optimal parameter: ", optimal_parameter)
+    optimal_k = model.tune_k(tuning_set, parameters=parameters, regression=True)
+    model.report_k_tuning_stats()
+    print("Optimal k: ", optimal_k)
+
+# Tune bandwidth for 5 trained models
+for model in trained_models:
+    parameters = [0.5 * _ for _ in range(1, 10)]
+    optimal_bandwidth = model.tune_bandwidth(tuning_set, parameters=parameters)
+    model.report_bandwidth_tuning_stats()
+    print("Optimal bandwidth: ", optimal_bandwidth)
 
 # Test
 for model, test_set in zip(trained_models, test_sets):
