@@ -1,11 +1,10 @@
 from models.KNN_pd import KNN
 import preprocessing
-import pandas as pd
 import numpy as np
 from sklearn.model_selection import KFold
 
 # Import data -- will factor out eventually
-df = preprocessing.import_abalone()
+df = preprocessing.import_forest_fires()
 
 # Extract tuning set
 tuning_set = df.sample(frac=0.1, random_state=2)
@@ -21,7 +20,8 @@ for fold, (train, test) in enumerate(skf.split(X=np.zeros(len(df)), y=df.iloc[:,
 # Train; run 5 experiments in total
 trained_models = []
 for training_set in training_sets:
-    my_knn = KNN(num_neighbors=1, bandwidth=3.0, error=2.5, data=training_set, attribute_names=list(df.columns))
+    my_knn = KNN(num_neighbors=3, bandwidth=3.0, error=2.5, data=training_set, attribute_names=list(df.columns))
+    # my_knn.train(regression=True)
     # my_knn.train(regression=True, edited=True)
     my_knn.condense_data(regression=True)
     my_knn.report_training_stats()

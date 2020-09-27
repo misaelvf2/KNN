@@ -1,11 +1,10 @@
 from models.KNN_pd import KNN
 import preprocessing
-import pandas as pd
 import numpy as np
 from sklearn.model_selection import StratifiedKFold
 
-# Import data -- will factor out eventually
-df = preprocessing.import_glass()
+# Import data
+df = preprocessing.import_voter()
 
 # Extract tuning set
 tuning_set = df.sample(frac=0.1, random_state=2)
@@ -22,8 +21,9 @@ for fold, (train, test) in enumerate(skf.split(X=np.zeros(len(df)), y=df.iloc[:,
 trained_models = []
 for training_set in training_sets:
     my_knn = KNN(num_neighbors=3, data=training_set, attribute_names=list(df.columns))
-    my_knn.condense_data()
+    my_knn.train()
     # my_knn.train(edited=True)
+    # my_knn.condense_data()
     my_knn.report_training_stats()
     trained_models.append(my_knn)
 

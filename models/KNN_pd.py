@@ -1,6 +1,7 @@
 from collections import Counter
 import numpy as np
 import pandas as pd
+from decimal import Decimal
 
 
 class KNN:
@@ -60,7 +61,7 @@ class KNN:
                 self.k_tuning[parameter]['mean_squared_error'] /= \
                     self.k_tuning[parameter]['total_predictions']
 
-        optimal_parameter, max_success_rate = 1, 0
+        optimal_parameter, max_success_rate = parameters[0], 0
         for k, v in self.k_tuning.items():
             if v['success_rate'] > max_success_rate:
                 optimal_parameter = k
@@ -82,7 +83,7 @@ class KNN:
             self.bandwidth_tuning[parameter]['mean_squared_error'] /= \
                 self.bandwidth_tuning[parameter]['total_predictions']
 
-        optimal_parameter, max_success_rate = 1, 0
+        optimal_parameter, max_success_rate = parameters[0], 0
         for k, v in self.bandwidth_tuning.items():
             if v['success_rate'] > max_success_rate:
                 optimal_parameter = k
@@ -119,8 +120,9 @@ class KNN:
         results['distances'] = results['sum_squared_diffs'].apply(lambda x: np.sqrt(x))
         return results
 
-    def distance_helper(self, x, y):
-        return np.power(x - y, 2)
+    def distance_helper(self, x, y, norm='Euclidean'):
+        if norm == 'Euclidean':
+            return np.power(x - y, 2)
 
     def classify(self, query_point, parameter=None, edited=False, condensed=False, tuning=False, testing=False):
         nearest_neighbors = list(self.find_nearest_neighbors(query_point, condensed=condensed)['Class'])
@@ -143,9 +145,11 @@ class KNN:
         nearest_values = nearest_neighbors['Class']
         weighted_sum, normalizer = 0, 0
         for distance, value in zip(nearest_distances, nearest_values):
-            weighted_sum += np.exp(-(distance**2/(2*self.bandwidth))) * value
-            normalizer += np.exp(-(distance**2/(2*self.bandwidth)))
+            arg = -(distance**2/(2*self.bandwidth))
+            weighted_sum += np.exp(arg) * value
+            normalizer += np.exp(arg)
         prediction = weighted_sum / normalizer
+        # print(f'Prediction: {prediction} -- Expected: {query_point.iloc[-1]}')
         squared_error = np.power(query_point.iloc[-1] - prediction, 2)
         if not tuning and not testing:
             self.update_training_stats(prediction, query_point.iloc[-1], error=squared_error,
